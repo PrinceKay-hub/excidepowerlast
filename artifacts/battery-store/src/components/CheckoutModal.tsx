@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { placeOrder, OrderData } from "@/lib/orders";
+import { sendOrderEmails } from "@/lib/email";
 import { useCart } from "@/context/CartContext";
 import { CheckCircle, Loader2 } from "lucide-react";
 
@@ -63,6 +64,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
     setErrorMsg("");
     try {
       const id = await placeOrder(values as OrderData, state.items, subtotal);
+      await sendOrderEmails(values as OrderData, state.items, subtotal, id);
       setOrderId(id);
       setStatus("success");
       dispatch({ type: "CLEAR_CART" });
