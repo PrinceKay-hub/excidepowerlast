@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "a5eCVBRLIaV1LV81EDB-q"
+uri = "file://artifacts/battery-store/public/images/battery-car.png"
+type = "image"
+title = "Car battery product photo"
+
+[[generated]]
+id = "lFGETxIqekA6JW3MbKRPy"
+uri = "file://artifacts/battery-store/public/images/battery-truck.png"
+type = "image"
+title = "Truck battery product photo"
+
+[[generated]]
+id = "zqpvYzvNim0uCGZjBw9yp"
+uri = "file://artifacts/battery-store/public/images/battery-marine.png"
+type = "image"
+title = "Marine battery product photo"
+
+[[generated]]
+id = "psPnu05W7IT02u6ReRbIl"
+uri = "file://artifacts/battery-store/public/images/battery-industrial.png"
+type = "image"
+title = "Industrial battery product photo"
