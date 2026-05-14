@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Shop from "@/pages/shop";
+import Product from "@/pages/product";
 import Admin from "@/pages/admin";
 import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
@@ -31,6 +32,7 @@ function Shell() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/shop" component={Shop} />
+          <Route path="/product/:id" component={Product} />
           <Route component={NotFound} />
         </Switch>
       </main>

@@ -1,36 +1,49 @@
+import { Link } from "wouter";
 import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
-import { Zap, ShieldCheck } from "lucide-react";
+import { Zap, ShieldCheck, Eye } from "lucide-react";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { dispatch } = useCart();
 
   return (
-    <div className="group flex flex-col rounded-lg border border-border bg-card overflow-hidden hover:border-primary/50 transition-colors">
-      <div className="aspect-square w-full bg-muted p-6 relative">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-contain object-center mix-blend-multiply transition-transform group-hover:scale-105"
-        />
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <span className="inline-flex items-center rounded-sm bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
-            {product.category}
-          </span>
+    <div
+      className="group flex flex-col rounded-lg border border-border bg-card overflow-hidden hover:border-primary/50 transition-colors"
+      data-testid={`card-product-${product.id}`}
+    >
+      <Link href={`/product/${product.id}`}>
+        <div className="aspect-square w-full bg-muted p-6 relative cursor-pointer">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="h-full w-full object-contain object-center mix-blend-multiply transition-transform group-hover:scale-105"
+          />
+          <div className="absolute top-3 left-3">
+            <span className="inline-flex items-center rounded-sm bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
+              {product.category}
+            </span>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="flex items-center gap-1.5 text-white text-sm font-semibold uppercase tracking-wide">
+              <Eye className="h-4 w-4" /> View Details
+            </span>
+          </div>
         </div>
-      </div>
-      
+      </Link>
+
       <div className="flex flex-1 flex-col p-5">
-        <div className="flex justify-between items-start gap-4">
-          <h3 className="text-lg font-bold leading-tight">{product.name}</h3>
-          <p className="text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
-        </div>
-        
+        <Link href={`/product/${product.id}`}>
+          <div className="flex justify-between items-start gap-4 cursor-pointer hover:text-primary transition-colors">
+            <h3 className="text-lg font-bold leading-tight">{product.name}</h3>
+            <p className="text-lg font-bold text-primary flex-shrink-0">${product.price.toFixed(2)}</p>
+          </div>
+        </Link>
+
         <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
           {product.description}
         </p>
-        
+
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-6">
           {product.cca && (
             <div className="flex items-center gap-1.5 bg-background p-1.5 rounded border border-border">
@@ -47,11 +60,21 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="font-medium text-foreground">{product.warranty} Warranty</span>
           </div>
         </div>
-        
-        <div className="mt-auto">
-          <Button 
-            className="w-full font-bold uppercase" 
+
+        <div className="mt-auto grid grid-cols-2 gap-2">
+          <Link href={`/product/${product.id}`}>
+            <Button
+              variant="outline"
+              className="w-full font-bold uppercase rounded-none border-border"
+              data-testid={`button-view-${product.id}`}
+            >
+              Details
+            </Button>
+          </Link>
+          <Button
+            className="w-full font-bold uppercase rounded-none"
             onClick={() => dispatch({ type: "ADD_ITEM", payload: product })}
+            data-testid={`button-addcart-${product.id}`}
           >
             Add to Cart
           </Button>
