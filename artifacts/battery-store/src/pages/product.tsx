@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
+import ReviewSection from "@/components/ReviewSection";
 import {
   Zap,
   ShieldCheck,
@@ -211,6 +212,8 @@ export default function ProductPage() {
           </div>
         </div>
       )}
+
+      <ReviewSection productId={product.id} />
     </div>
   );
 }
