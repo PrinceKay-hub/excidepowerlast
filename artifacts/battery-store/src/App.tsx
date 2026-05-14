@@ -1,23 +1,41 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Shop from "@/pages/shop";
+import Admin from "@/pages/admin";
 import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 
 const queryClient = new QueryClient();
 
-function Router() {
+function Shell() {
+  const [location] = useLocation();
+  const isAdmin = location.startsWith("/admin");
+
+  if (isAdmin) {
+    return (
+      <Switch>
+        <Route path="/admin" component={Admin} />
+      </Switch>
+    );
+  }
+
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/shop" component={Shop} />
-      <Route component={NotFound} />
-    </Switch>
+    <div className="flex min-h-screen flex-col bg-background text-foreground dark">
+      <Navbar />
+      <main className="flex-1 flex flex-col">
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/shop" component={Shop} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+      <CartDrawer />
+    </div>
   );
 }
 
@@ -27,13 +45,7 @@ function App() {
       <TooltipProvider>
         <CartProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <div className="flex min-h-screen flex-col bg-background text-foreground dark">
-              <Navbar />
-              <main className="flex-1 flex flex-col">
-                <Router />
-              </main>
-              <CartDrawer />
-            </div>
+            <Shell />
           </WouterRouter>
           <Toaster />
         </CartProvider>

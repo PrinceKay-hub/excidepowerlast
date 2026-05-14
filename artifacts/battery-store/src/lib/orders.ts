@@ -1,4 +1,15 @@
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  doc,
+  updateDoc,
+  query,
+  orderBy,
+  Timestamp,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "./firebase";
 import { CartItem } from "@/context/CartContext";
 
@@ -12,13 +23,24 @@ export interface OrderData {
   zip: string;
 }
 
+export interface OrderLineItem {
+  productId: string;
+  productName: string;
+  category: string;
+  price: number;
+  quantity: number;
+  lineTotal: number;
+}
+
 export interface Order extends OrderData {
   id: string;
-  items: CartItem[];
+  items: OrderLineItem[];
   subtotal: number;
-  status: string;
-  createdAt: unknown;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  createdAt: Timestamp | null;
 }
+
+export type OrderStatus = Order["status"];
 
 export async function placeOrder(
   orderData: OrderData,
@@ -40,4 +62,22 @@ export async function placeOrder(
     createdAt: serverTimestamp(),
   });
   return docRef.id;
+}
+
+export async function fetchOrders(): Promise<Order[]> {
+  const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
+}
+
+export function subscribeToOrders(callback: (orders: Order[]) => void) {
+  const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    const orders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
+    callback(orders);
+  });
+}
+
+export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
+  await updateDoc(doc(db, "orders", orderId), { status });
 }
