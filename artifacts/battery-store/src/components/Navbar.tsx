@@ -9,11 +9,12 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
-          <Zap className="h-6 w-6 fill-primary" />
-          <span>VOLTEDGE</span>
+        <Link href="/" className="flex items-center gap-2 font-extrabold text-xl tracking-tight text-primary uppercase">
+          
+          <img src="/Logo.png" alt="Exide Powerlast Logo" className="h-6 w-auto" />
+          <span>YESUDEM POWER BATTERY</span>
         </Link>
 
         <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
@@ -28,14 +29,14 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/shop" className="hidden md:inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 uppercase">
+          <Link href="/shop" className="hidden md:inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-bold text-white shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 uppercase">
             Shop Now
           </Link>
 
           <Button variant="ghost" size="icon" className="relative" onClick={() => dispatch({ type: "OPEN_CART" })} data-testid="button-open-cart">
             <ShoppingCart className="h-5 w-5" />
             {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center" data-testid="text-cart-count">
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center" data-testid="text-cart-count">
                 {totalItems}
               </span>
             )}
@@ -57,7 +58,7 @@ export default function Navbar() {
           <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium hover:text-primary">About</a>
           <a href="#contact" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium hover:text-primary">Contact</a>
           <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)}>
-            <Button className="w-full uppercase font-bold">Shop Now</Button>
+            <Button className="w-full uppercase font-bold text-white">Shop Now</Button>
           </Link>
         </div>
       )}

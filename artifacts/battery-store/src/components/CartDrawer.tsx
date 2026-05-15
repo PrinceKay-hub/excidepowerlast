@@ -31,7 +31,7 @@ export default function CartDrawer() {
               <div className="space-y-6">
                 {state.items.map((item) => (
                   <div key={item.product.id} className="flex gap-4" data-testid={`cart-item-${item.product.id}`}>
-                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border bg-muted p-2">
+                    <div className="h-24 w-24 shrink-0 overflow-hidden rounded-md border border-border bg-muted p-2">
                       <img
                         src={item.product.image}
                         alt={item.product.name}
@@ -42,7 +42,7 @@ export default function CartDrawer() {
                     <div className="flex flex-1 flex-col">
                       <div className="flex justify-between text-base font-medium">
                         <h3 className="line-clamp-2">{item.product.name}</h3>
-                        <p className="ml-4">${(item.product.price * item.quantity).toFixed(2)}</p>
+                        <p className="ml-4 text-red-600">₵{(item.product.price * item.quantity).toFixed(2)}</p>
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">{item.product.category}</p>
 
@@ -90,14 +90,16 @@ export default function CartDrawer() {
           <div className="border-t border-border pt-6">
             <div className="flex justify-between text-lg font-bold">
               <p>Subtotal</p>
-              <p data-testid="text-subtotal">${subtotal.toFixed(2)}</p>
+              <p data-testid="text-subtotal " className="text-red-600">
+                ₵{subtotal.toFixed(2)}
+              </p>
             </div>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Shipping and taxes calculated at checkout.
             </p>
             <div className="mt-6">
               <Button
-                className="w-full uppercase font-bold text-lg h-12"
+                className="w-full uppercase font-bold text-lg h-12 text-white"
                 disabled={state.items.length === 0}
                 onClick={handleCheckout}
                 data-testid="button-checkout"

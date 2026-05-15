@@ -334,7 +334,7 @@ export default function ProductFormSheet({
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-2xl overflow-y-auto dark bg-background border-border"
+        className="w-full sm:max-w-2xl overflow-y-auto bg-background border-border"
       >
         <SheetHeader className="mb-6">
           <SheetTitle className="text-xl font-black uppercase tracking-tight">

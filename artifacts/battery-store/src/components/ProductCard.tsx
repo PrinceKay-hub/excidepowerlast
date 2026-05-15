@@ -22,7 +22,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <img
             src={product.image}
             alt={product.name}
-            className={`h-full w-full object-contain object-center mix-blend-multiply transition-transform group-hover:scale-105 ${isOutOfStock ? "opacity-50 grayscale" : ""}`}
+            className={`h-full w-full object-contain object-center  transition-transform group-hover:scale-105 ${isOutOfStock ? "opacity-50 grayscale" : ""}`}
           />
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             <span className="inline-flex items-center rounded-sm bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
@@ -42,7 +42,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <Link href={`/product/${product.id}`}>
           <div className="flex justify-between items-start gap-4 cursor-pointer hover:text-primary transition-colors">
             <h3 className="text-lg font-bold leading-tight">{product.name}</h3>
-            <p className="text-lg font-bold text-primary flex-shrink-0">${product.price.toFixed(2)}</p>
+            <p className="text-lg font-bold text-red-600 shrink-0">₵{product.price.toFixed(2)}</p>
           </div>
         </Link>
 
@@ -78,7 +78,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </Button>
           </Link>
           <Button
-            className="w-full font-bold uppercase rounded-none"
+            className="w-full font-bold uppercase rounded-none text-white"
             onClick={() => dispatch({ type: "ADD_ITEM", payload: product })}
             disabled={isOutOfStock}
             data-testid={`button-addcart-${product.id}`}

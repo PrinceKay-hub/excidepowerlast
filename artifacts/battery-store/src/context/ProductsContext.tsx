@@ -20,6 +20,7 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
     seedIfEmpty().catch(() => {});
     const unsub = subscribeToProducts(
       (data) => {
+        console.log("Received products data:", data);
         if (data.length > 0) setProducts(data);
         setLoading(false);
       },

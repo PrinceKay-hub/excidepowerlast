@@ -117,12 +117,12 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 {state.items.map((item) => (
                   <div key={item.product.id} className="flex justify-between text-sm py-0.5">
                     <span className="text-foreground">{item.product.name} × {item.quantity}</span>
-                    <span className="text-primary font-medium">${(item.product.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-medium text-red-600">₵{(item.product.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
                 <div className="flex justify-between font-bold border-t border-border mt-2 pt-2">
                   <span>Total</span>
-                  <span className="text-primary">${subtotal.toFixed(2)}</span>
+                  <span className="text-red-600">₵{subtotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -192,7 +192,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                       <FormItem>
                         <FormLabel>City</FormLabel>
                         <FormControl>
-                          <Input placeholder="Atlanta" data-testid="input-city" {...field} />
+                          <Input placeholder="Accra" data-testid="input-city" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -203,9 +203,9 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                     name="state"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>State</FormLabel>
+                        <FormLabel>Region</FormLabel>
                         <FormControl>
-                          <Input placeholder="GA" data-testid="input-state" {...field} />
+                          <Input placeholder="Greater Accra" data-testid="input-state" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -218,7 +218,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                       <FormItem>
                         <FormLabel>ZIP</FormLabel>
                         <FormControl>
-                          <Input placeholder="30301" data-testid="input-zip" {...field} />
+                          <Input placeholder="233" data-testid="input-zip" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -233,7 +233,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
               <Button
                 type="submit"
-                className="w-full uppercase font-bold text-lg h-12"
+                className="w-full uppercase font-bold text-lg h-12 text-white"
                 disabled={status === "loading"}
                 data-testid="button-place-order"
               >
@@ -243,7 +243,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                     Placing Order...
                   </>
                 ) : (
-                  `Place Order — $${subtotal.toFixed(2)}`
+                  `Place Order — ₵${subtotal.toFixed(2)}`
                 )}
               </Button>
             </form>

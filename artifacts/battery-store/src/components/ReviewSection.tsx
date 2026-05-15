@@ -111,7 +111,7 @@ function AverageBar({ count, star, total }: { count: number; star: number; total
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="w-3 text-right text-muted-foreground">{star}</span>
-      <Star className="h-3 w-3 fill-primary text-primary flex-shrink-0" />
+      <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
       <div className="flex-1 h-1.5 bg-muted rounded-none overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
@@ -196,7 +196,7 @@ export default function ReviewSection({ productId }: { productId: string }) {
 
       {reviews.length > 0 && (
         <div className="flex flex-col sm:flex-row gap-8 mb-10 border border-border bg-card p-6">
-          <div className="flex flex-col items-center justify-center gap-1 sm:border-r sm:border-border sm:pr-8 flex-shrink-0">
+          <div className="flex flex-col items-center justify-center gap-1 sm:border-r sm:border-border sm:pr-8 shrink-0">
             <p className="text-5xl font-black text-primary">{avg.toFixed(1)}</p>
             <StarRating value={Math.round(avg)} readonly size="md" />
             <p className="text-xs text-muted-foreground mt-1">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
@@ -266,7 +266,7 @@ export default function ReviewSection({ productId }: { productId: string }) {
                           <FormControl>
                             <Textarea
                               placeholder="What did you think of this battery? How does it perform?"
-                              className="rounded-none min-h-[100px]"
+                              className="rounded-none min-h-25"
                               data-testid="input-review-body"
                               {...field}
                             />

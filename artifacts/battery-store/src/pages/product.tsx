@@ -62,7 +62,7 @@ export default function ProductPage() {
   ];
 
   return (
-    <div className="max-w-screen-xl mx-auto px-6 py-10">
+    <div className="max-w-7xl mx-auto px-6 py-10">
       <Link href="/shop">
         <button
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 uppercase tracking-wide font-medium"
@@ -104,8 +104,8 @@ export default function ProductPage() {
             <h1 className="text-4xl font-black uppercase tracking-tight leading-none mb-2" data-testid="text-product-name">
               {product.name}
             </h1>
-            <p className="text-3xl font-bold text-primary" data-testid="text-product-price">
-              ${product.price.toFixed(2)}
+            <p className="text-3xl font-bold text-red-600" data-testid="text-product-price">
+              ₵{product.price.toFixed(2)}
             </p>
           </div>
 
@@ -116,7 +116,7 @@ export default function ProductPage() {
           <div className="grid grid-cols-2 gap-2">
             {specs.map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-center gap-2 bg-muted/30 border border-border px-3 py-2">
-                <Icon className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span className="text-xs text-muted-foreground">{label}:</span>
                 <span className="text-xs font-semibold text-foreground truncate">{value}</span>
               </div>
@@ -146,7 +146,7 @@ export default function ProductPage() {
               </div>
 
               <Button
-                className="flex-1 uppercase font-bold h-10 text-base transition-all"
+                className="flex-1 uppercase font-bold h-10 text-base transition-all text-white"
                 onClick={handleAddToCart}
                 disabled={getStatus(product.id) === "out_of_stock"}
                 data-testid="button-add-to-cart"
@@ -154,11 +154,11 @@ export default function ProductPage() {
                 {getStatus(product.id) === "out_of_stock" ? (
                   "Out of Stock"
                 ) : added ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 ">
                     <CheckCircle2 className="h-4 w-4" /> Added to Cart
                   </span>
                 ) : (
-                  `Add to Cart — $${(product.price * qty).toFixed(2)}`
+                  `Add to Cart — ₵${(product.price * qty).toFixed(2)}`
                 )}
               </Button>
             </div>
@@ -187,7 +187,7 @@ export default function ProductPage() {
             <ul className="space-y-2">
               {product.features.map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                   <span>{f}</span>
                 </li>
               ))}
@@ -208,12 +208,12 @@ export default function ProductPage() {
                   className="group border border-border bg-card hover:border-primary/50 transition-colors cursor-pointer flex gap-4 p-4 items-center"
                   data-testid={`card-related-${r.id}`}
                 >
-                  <div className="h-20 w-20 flex-shrink-0 bg-muted flex items-center justify-center p-2">
+                  <div className="h-20 w-20 shrink-0 bg-muted flex items-center justify-center p-2">
                     <img src={r.image} alt={r.name} className="h-full w-full object-contain" />
                   </div>
                   <div>
                     <p className="font-bold text-sm group-hover:text-primary transition-colors">{r.name}</p>
-                    <p className="text-primary font-bold mt-0.5">${r.price.toFixed(2)}</p>
+                    <p className="text-primary font-bold mt-0.5">₵{r.price.toFixed(2)}</p>
                     {r.cca && <p className="text-xs text-muted-foreground mt-1">{r.cca} CCA · {r.voltage}V</p>}
                   </div>
                 </div>

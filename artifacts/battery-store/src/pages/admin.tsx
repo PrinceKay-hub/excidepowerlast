@@ -183,7 +183,7 @@ function OrderRow({
       {expanded && (
         <TableRow className="border-border bg-muted/10">
           <TableCell colSpan={8} className="py-4 px-8">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-2">
                   Shipping Address
@@ -258,14 +258,14 @@ function InventoryTab() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <StatCard icon={Package} label="In Stock" value={String(inStockCount)} sub="available products" />
         <StatCard icon={AlertTriangle} label="Low Stock" value={String(lowCount)} sub="limited availability" />
         <StatCard icon={XCircle} label="Out of Stock" value={String(outCount)} sub="unavailable products" />
       </div>
 
-      <div className="border border-border">
-        <Table>
+      <div className="overflow-x-auto border border-border">
+        <Table className="min-w-180">
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="text-xs uppercase tracking-widest text-muted-foreground">Product</TableHead>
@@ -287,7 +287,7 @@ function InventoryTab() {
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-muted flex items-center justify-center flex-shrink-0 border border-border">
+                      <div className="h-10 w-10 bg-muted flex items-center justify-center shrink-0 border border-border">
                         <img
                           src={product.image}
                           alt={product.name}
@@ -374,7 +374,7 @@ function ProductsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-muted-foreground text-sm">{products.length} product{products.length !== 1 ? "s" : ""} in catalogue</p>
         </div>
@@ -387,13 +387,13 @@ function ProductsTab() {
         </Button>
       </div>
 
-      <div className="border border-border">
+      <div className="overflow-x-auto border border-border">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-muted-foreground text-sm gap-2">
             <RefreshCw className="h-4 w-4 animate-spin" /> Loading products…
           </div>
         ) : (
-          <Table>
+          <Table className="min-w-185">
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
                 <TableHead className="text-xs uppercase tracking-widest text-muted-foreground w-14">Image</TableHead>
@@ -454,7 +454,7 @@ function ProductsTab() {
       />
 
       <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
-        <DialogContent className="dark bg-background border-border rounded-none sm:max-w-md">
+        <DialogContent className="bg-background border-border rounded-none sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-black uppercase tracking-tight">Delete Product?</DialogTitle>
             <DialogDescription className="text-muted-foreground">
@@ -515,7 +515,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center dark">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="border border-border bg-card p-10 w-full max-w-sm flex flex-col items-center gap-6">
         <div className="p-4 bg-primary/10 text-primary">
           <Lock className="h-8 w-8" />
@@ -607,7 +607,7 @@ export default function AdminPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center dark">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
@@ -630,21 +630,23 @@ export default function AdminPage() {
   const deliveredCount = orders.filter((o) => o.status === "delivered").length;
 
   return (
-    <div className="min-h-screen bg-background text-foreground dark">
-      <div className="border-b border-border px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="border-b border-border px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
           <span className="text-primary font-black text-xl tracking-tight uppercase">
             VoltEdge
           </span>
           <span className="text-muted-foreground text-sm">/ Admin</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           <div className="flex items-center gap-2 text-muted-foreground text-xs">
             <RefreshCw className="h-3 w-3" />
             Live — updated {lastRefresh.toLocaleTimeString()}
           </div>
-          <div className="flex items-center gap-2 border-l border-border pl-4">
-            <span className="text-xs text-muted-foreground hidden sm:block truncate max-w-[160px]">{user.email}</span>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 border-t border-border pt-3 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-4">
+            <span className="text-xs text-muted-foreground truncate max-w-40">
+              {user.email}
+            </span>
             <Button
               variant="outline"
               size="sm"
@@ -658,7 +660,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="px-8 py-6 max-w-screen-xl mx-auto space-y-6">
+      <div className="px-4 py-6 max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tight">
             Admin Dashboard
@@ -668,7 +670,7 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <div className="flex gap-1 border-b border-border">
+        <div className="flex flex-wrap gap-1 border-b border-border overflow-x-auto">
           {(["orders", "inventory", "products"] as Tab[]).map((tab) => (
             <button
               key={tab}
@@ -704,14 +706,14 @@ export default function AdminPage() {
 
         {activeTab === "orders" && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               <StatCard icon={ShoppingBag} label="Total Orders" value={String(orders.length)} />
               <StatCard icon={DollarSign} label="Total Revenue" value={`$${totalRevenue.toFixed(2)}`} />
               <StatCard icon={Clock} label="Pending" value={String(pendingCount)} sub="awaiting action" />
               <StatCard icon={TrendingUp} label="Delivered" value={String(deliveredCount)} sub="completed orders" />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Input
                 placeholder="Search by name, email, or order ID…"
                 value={search}
@@ -748,7 +750,7 @@ export default function AdminPage() {
               </Select>
             </div>
 
-            <div className="border border-border">
+            <div className="overflow-x-auto border border-border">
               {loading ? (
                 <div className="flex items-center justify-center py-20 text-muted-foreground text-sm gap-2">
                   <RefreshCw className="h-4 w-4 animate-spin" />
@@ -764,7 +766,7 @@ export default function AdminPage() {
                   </p>
                 </div>
               ) : (
-                <Table>
+                <Table className="min-w-185">
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="w-4" />

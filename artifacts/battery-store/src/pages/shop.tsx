@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useProducts } from "@/context/ProductsContext";
 import ProductCard from "@/components/ProductCard";
@@ -56,8 +56,20 @@ export default function Shop() {
     setSearch("");
     setCategory("All");
     setSortBy("featured");
-    setPriceRange([0, 300]);
+    // reset to dynamic max based on current products
+    const max = Math.max(10000, ...products.map((p) => Number(p.price || 0)));
+    setPriceRange([0, max]);
   };
+
+  // Ensure the price filter upper bound covers the most expensive product
+  useEffect(() => {
+    const max = Math.max(10000, ...products.map((p) => Number(p.price || 0)));
+    if (priceRange[1] < max) {
+      setPriceRange([priceRange[0], max]);
+    }
+    // only run when products change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products]);
 
   const FilterSidebar = () => (
     <div className="space-y-8">
@@ -98,15 +110,15 @@ export default function Shop() {
         <div className="px-2">
           <Slider
             min={0}
-            max={300}
-            step={10}
+            max={10000}
+            step={100}
             value={[priceRange[1]]}
             onValueChange={(val) => setPriceRange([0, val[0]])}
             className="mb-6"
           />
           <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
-            <span>$0</span>
-            <span className="text-foreground font-bold">${priceRange[1]}</span>
+            <span>₵0</span>
+            <span className="text-foreground font-bold">₵{priceRange[1]}</span>
           </div>
         </div>
       </div>

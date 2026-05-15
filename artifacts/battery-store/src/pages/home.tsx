@@ -26,11 +26,16 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-zinc-950 py-24 sm:py-32 lg:py-40">
+      <section className="relative overflow-hidden py-24 sm:py-32 lg:py-40" style={{
+        backgroundImage: 'url("https://archello.s3.eu-central-1.amazonaws.com/images/2020/01/20/Ellement-Pilana-Karbid-BoysPlayNice-01.1579517042.1075.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}>
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/20 z-10" />
+          <div className="absolute inset-0 bg-linear-to-r from-white/80 via-white/45 to-white/35 z-10" />
           {/* Abstract industrial pattern */}
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
         </div>
         
         <div className="container relative z-20 mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,20 +46,20 @@ export default function Home() {
                 INDUSTRIAL GRADE POWER
               </motion.div>
               
-              <motion.h1 variants={fadeInUp} className="text-4xl font-extrabold tracking-tight sm:text-6xl text-white uppercase">
+              <motion.h1 variants={fadeInUp} className="text-4xl font-extrabold tracking-tight sm:text-6xl text-red-600 uppercase">
                 The Last Battery <br/>
                 <span className="text-primary">You'll Ever Need.</span>
               </motion.h1>
               
-              <motion.p variants={fadeInUp} className="text-lg leading-8 text-zinc-300">
-                VoltEdge builds unyielding, high-performance batteries for automotive, marine, and industrial applications. When failure isn't an option, professionals choose VoltEdge.
+              <motion.p variants={fadeInUp} className="text-lg leading-8 text-gray-800 font-medium">
+                Yesudem sells unyielding, high-performance batteries for automotive, marine, and industrial applications. When failure isn't an option, professionals choose Yesudem.
               </motion.p>
               
               <motion.div variants={fadeInUp} className="mt-4 flex flex-col sm:flex-row gap-4">
-                <Button asChild size="lg" className="h-14 px-8 text-base font-bold uppercase tracking-wider">
+                <Button asChild size="lg" className="h-14 px-8 text-base font-bold uppercase tracking-wider text-white">
                   <Link href="/shop">Shop Now</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="h-14 px-8 text-base font-bold uppercase tracking-wider bg-transparent text-white border-zinc-700 hover:bg-zinc-800 hover:text-white">
+                <Button asChild size="lg" variant="outline" className="h-14 px-8 text-base font-bold uppercase tracking-wider bg-transparent text-gray-800 border-zinc-700 hover:bg-zinc-800 hover:text-white">
                   <a href="#applications">Explore Specs</a>
                 </Button>
               </motion.div>
@@ -113,7 +118,7 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-24 bg-zinc-900/50">
+      <section className="py-24 bg-gray-200" >
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div>
@@ -133,15 +138,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Applications / Categories */}
+      {/* Applications / Categories 
       <section id="applications" className="py-24 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-black uppercase tracking-tight text-center mb-16">Built For Your Domain</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="relative overflow-hidden rounded-2xl group min-h-[400px] border border-border">
+            <div className="relative overflow-hidden rounded-2xl group min-h-100 border border-border">
               <div className="absolute inset-0 bg-zinc-900 z-0">
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent z-10" />
+                <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/50 to-transparent z-10" />
               </div>
               <div className="absolute inset-0 z-20 p-8 flex flex-col justify-end">
                 <h3 className="text-2xl font-bold uppercase text-white mb-2">Automotive & Truck</h3>
@@ -152,9 +157,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl group min-h-[400px] border border-border">
+            <div className="relative overflow-hidden rounded-2xl group min-h-100 border border-border">
               <div className="absolute inset-0 bg-zinc-900 z-0">
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent z-10" />
+                <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/50 to-transparent z-10" />
               </div>
               <div className="absolute inset-0 z-20 p-8 flex flex-col justify-end">
                 <h3 className="text-2xl font-bold uppercase text-white mb-2">Marine & Deep Cycle</h3>
@@ -167,9 +172,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      */}
       {/* Tech Specs Callout */}
-      <section className="py-24 bg-primary text-primary-foreground overflow-hidden">
+      <section className="py-24 bg-gray-300 text-primary-foreground overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
             <div className="flex-1 max-w-xl">
@@ -213,8 +218,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-12">
             <div className="col-span-1 md:col-span-2">
               <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white mb-6">
-                <Zap className="h-6 w-6 fill-primary text-primary" />
-                <span>VOLTEDGE</span>
+                <img src="/Logo.png" alt="YESUDEM POWER BATTERY Logo" className="h-8 w-8 object-contain" />
+                <span>YESUDEM POWER BATTERY</span>
               </Link>
               <p className="max-w-sm mb-6">
                 Premium automotive, marine, and industrial batteries built for extreme conditions and uncompromising reliability.
@@ -234,16 +239,14 @@ export default function Home() {
             <div>
               <h4 className="text-white font-bold uppercase tracking-wider mb-4">Support</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="hover:text-primary transition-colors">Warranty Info</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Battery Finder</a></li>
+                <li><a href="/finder" className="hover:text-primary transition-colors">Battery Finder</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Dealer Portal</a></li>
               </ul>
             </div>
           </div>
           
           <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-            <p>&copy; {new Date().getFullYear()} VoltEdge Batteries. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} YESUDEM POWER BATTERY. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
