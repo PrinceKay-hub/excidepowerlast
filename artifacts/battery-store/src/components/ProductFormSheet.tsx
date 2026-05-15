@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,10 +27,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Camera, ImagePlus, Loader2, X, AlertCircle } from "lucide-react";
 import { Product, NewProduct, addProduct, updateProduct } from "@/lib/products-db";
+import { uploadProductImage, UploadProgress } from "@/lib/storage";
 
-const IMAGES = [
+const PRESETS = [
   { label: "Car Battery", value: "/images/battery-car.png" },
   { label: "Truck Battery", value: "/images/battery-truck.png" },
   { label: "Marine Battery", value: "/images/battery-marine.png" },
@@ -117,6 +118,181 @@ const DEFAULTS: FormValues = {
   features: "",
 };
 
+function ImagePicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+}) {
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [upload, setUpload] = useState<UploadProgress | null>(null);
+  const cancelRef = useRef<(() => void) | null>(null);
+
+  const isPreset = PRESETS.some((p) => p.value === value);
+  const isUploaded = !isPreset && value.startsWith("http");
+  const isCustomUrl = !isPreset && !isUploaded && value !== "";
+
+  function handleFile(file: File | undefined) {
+    if (!file) return;
+    if (cancelRef.current) cancelRef.current();
+    setUpload({ state: "running", percent: 0 });
+    cancelRef.current = uploadProductImage(file, (progress) => {
+      setUpload(progress);
+      if (progress.state === "done") {
+        onChange(progress.url);
+      }
+    });
+  }
+
+  function handleCancel() {
+    if (cancelRef.current) cancelRef.current();
+    setUpload(null);
+  }
+
+  const uploading = upload?.state === "running";
+  const uploadError = upload?.state === "error" ? upload.message : null;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-3 items-start">
+        <div className="h-20 w-20 flex-shrink-0 border border-border bg-muted/30 flex items-center justify-center overflow-hidden relative">
+          {value ? (
+            <img
+              src={value}
+              alt="preview"
+              className="h-full w-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <ImagePlus className="h-6 w-6 text-muted-foreground" />
+          )}
+          {uploading && (
+            <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 space-y-2">
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-none uppercase text-xs font-bold flex-1 border-border gap-1.5"
+              disabled={uploading}
+              onClick={() => cameraInputRef.current?.click()}
+              data-testid="button-camera"
+            >
+              <Camera className="h-3.5 w-3.5" />
+              Camera
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-none uppercase text-xs font-bold flex-1 border-border gap-1.5"
+              disabled={uploading}
+              onClick={() => galleryInputRef.current?.click()}
+              data-testid="button-gallery"
+            >
+              <ImagePlus className="h-3.5 w-3.5" />
+              Gallery
+            </Button>
+          </div>
+
+          {uploading && upload.state === "running" && (
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1 bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${upload.percent}%` }}
+                />
+              </div>
+              <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">
+                {upload.percent}%
+              </span>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="flex items-start gap-1.5 text-destructive text-xs">
+              <AlertCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+              <span>{uploadError}</span>
+            </div>
+          )}
+
+          {upload?.state === "done" && (
+            <p className="text-xs text-green-400">Photo uploaded successfully.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-xs text-muted-foreground uppercase tracking-wide">Or choose a preset</p>
+        <Select
+          value={isPreset ? value : isCustomUrl ? "custom" : ""}
+          onValueChange={(v) => {
+            setUpload(null);
+            if (v !== "custom") onChange(v);
+            else onChange("");
+          }}
+        >
+          <SelectTrigger className="rounded-none border-border bg-background text-sm">
+            <SelectValue placeholder={isUploaded ? "Uploaded photo" : "Choose a preset…"} />
+          </SelectTrigger>
+          <SelectContent className="rounded-none">
+            {PRESETS.map((img) => (
+              <SelectItem key={img.value} value={img.value}>
+                {img.label}
+              </SelectItem>
+            ))}
+            <SelectItem value="custom">Custom URL…</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {isCustomUrl && (
+          <Input
+            placeholder="https://example.com/image.png"
+            className="rounded-none"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        )}
+      </div>
+
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handleFile(e.target.files?.[0])}
+        data-testid="input-gallery"
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => handleFile(e.target.files?.[0])}
+        data-testid="input-camera"
+      />
+    </div>
+  );
+}
+
 export default function ProductFormSheet({
   open,
   onClose,
@@ -153,9 +329,6 @@ export default function ProductFormSheet({
       setSaving(false);
     }
   }
-
-  const imageValue = form.watch("image");
-  const isCustomImage = !IMAGES.find((i) => i.value === imageValue);
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
@@ -339,47 +512,9 @@ export default function ProductFormSheet({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Product Image</FormLabel>
-                  <div className="flex gap-2 items-start">
-                    <div className="h-10 w-10 flex-shrink-0 border border-border bg-muted flex items-center justify-center">
-                      <img
-                        src={field.value}
-                        alt="preview"
-                        className="h-8 w-8 object-contain"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                      />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <Select
-                        value={isCustomImage ? "custom" : field.value}
-                        onValueChange={(v) => {
-                          if (v !== "custom") field.onChange(v);
-                          else field.onChange("");
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="rounded-none border-border bg-background">
-                            <SelectValue placeholder="Choose an image" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="rounded-none">
-                          {IMAGES.map((img) => (
-                            <SelectItem key={img.value} value={img.value}>
-                              {img.label}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="custom">Custom URL…</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {isCustomImage && (
-                        <Input
-                          placeholder="https://example.com/image.png"
-                          className="rounded-none"
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    </div>
-                  </div>
+                  <FormControl>
+                    <ImagePicker value={field.value} onChange={field.onChange} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
