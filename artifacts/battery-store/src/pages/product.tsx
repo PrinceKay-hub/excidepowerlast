@@ -3,7 +3,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { useInventory } from "@/context/InventoryContext";
 import { Button } from "@/components/ui/button";
+import StockBadge from "@/components/StockBadge";
 import ReviewSection from "@/components/ReviewSection";
 import {
   Zap,
@@ -21,6 +23,7 @@ import {
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const { dispatch } = useCart();
+  const { getStatus } = useInventory();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
@@ -91,9 +94,12 @@ export default function ProductPage() {
           className="flex flex-col gap-6"
         >
           <div>
-            <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-3 py-1 mb-3">
-              {product.category}
-            </span>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-3 py-1">
+                {product.category}
+              </span>
+              <StockBadge status={getStatus(product.id)} size="md" />
+            </div>
             <h1 className="text-4xl font-black uppercase tracking-tight leading-none mb-2" data-testid="text-product-name">
               {product.name}
             </h1>
@@ -141,9 +147,12 @@ export default function ProductPage() {
               <Button
                 className="flex-1 uppercase font-bold h-10 text-base transition-all"
                 onClick={handleAddToCart}
+                disabled={getStatus(product.id) === "out_of_stock"}
                 data-testid="button-add-to-cart"
               >
-                {added ? (
+                {getStatus(product.id) === "out_of_stock" ? (
+                  "Out of Stock"
+                ) : added ? (
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" /> Added to Cart
                   </span>

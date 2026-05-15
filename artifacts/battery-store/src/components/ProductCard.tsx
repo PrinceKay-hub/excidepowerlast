@@ -1,11 +1,16 @@
 import { Link } from "wouter";
 import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { useInventory } from "@/context/InventoryContext";
 import { Button } from "@/components/ui/button";
+import StockBadge from "@/components/StockBadge";
 import { Zap, ShieldCheck, Eye } from "lucide-react";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { dispatch } = useCart();
+  const { getStatus } = useInventory();
+  const status = getStatus(product.id);
+  const isOutOfStock = status === "out_of_stock";
 
   return (
     <div
@@ -17,12 +22,13 @@ export default function ProductCard({ product }: { product: Product }) {
           <img
             src={product.image}
             alt={product.name}
-            className="h-full w-full object-contain object-center mix-blend-multiply transition-transform group-hover:scale-105"
+            className={`h-full w-full object-contain object-center mix-blend-multiply transition-transform group-hover:scale-105 ${isOutOfStock ? "opacity-50 grayscale" : ""}`}
           />
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             <span className="inline-flex items-center rounded-sm bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
               {product.category}
             </span>
+            <StockBadge status={status} size="sm" />
           </div>
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
             <span className="flex items-center gap-1.5 text-white text-sm font-semibold uppercase tracking-wide">
@@ -74,9 +80,10 @@ export default function ProductCard({ product }: { product: Product }) {
           <Button
             className="w-full font-bold uppercase rounded-none"
             onClick={() => dispatch({ type: "ADD_ITEM", payload: product })}
+            disabled={isOutOfStock}
             data-testid={`button-addcart-${product.id}`}
           >
-            Add to Cart
+            {isOutOfStock ? "Unavailable" : "Add to Cart"}
           </Button>
         </div>
       </div>

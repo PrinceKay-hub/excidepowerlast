@@ -9,6 +9,7 @@ import Product from "@/pages/product";
 import Finder from "@/pages/finder";
 import Admin from "@/pages/admin";
 import { CartProvider } from "@/context/CartContext";
+import { InventoryProvider } from "@/context/InventoryContext";
 import Navbar from "@/components/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 
@@ -48,10 +49,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Shell />
-          </WouterRouter>
-          <Toaster />
+          <InventoryProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Shell />
+            </WouterRouter>
+            <Toaster />
+          </InventoryProvider>
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>
