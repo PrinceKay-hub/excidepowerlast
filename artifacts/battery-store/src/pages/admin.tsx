@@ -1,11 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { subscribeToOrders, updateOrderStatus, Order, OrderStatus } from "@/lib/orders";
 import { subscribeToInventory, setStockStatus, StockStatus } from "@/lib/inventory";
-import { products } from "@/data/products";
+import { subscribeToProducts, deleteProduct, Product } from "@/lib/products-db";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import StockBadge from "@/components/StockBadge";
+import ProductFormSheet from "@/components/ProductFormSheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -33,6 +42,10 @@ import {
   Package,
   AlertTriangle,
   XCircle,
+  PlusCircle,
+  Pencil,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 
 const ADMIN_PIN = "voltedge2024";
@@ -330,6 +343,147 @@ function InventoryTab() {
   );
 }
 
+function ProductsTab() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Product | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const unsub = subscribeToProducts(
+      (data) => { setProducts(data); setLoading(false); },
+      () => setLoading(false)
+    );
+    return unsub;
+  }, []);
+
+  function openAdd() { setEditing(null); setFormOpen(true); }
+  function openEdit(p: Product) { setEditing(p); setFormOpen(true); }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    await deleteProduct(deleteTarget.id);
+    setDeleting(false);
+    setDeleteTarget(null);
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-muted-foreground text-sm">{products.length} product{products.length !== 1 ? "s" : ""} in catalogue</p>
+        </div>
+        <Button
+          className="uppercase font-bold rounded-none gap-2"
+          onClick={openAdd}
+          data-testid="button-add-product"
+        >
+          <PlusCircle className="h-4 w-4" /> Add Product
+        </Button>
+      </div>
+
+      <div className="border border-border">
+        {loading ? (
+          <div className="flex items-center justify-center py-20 text-muted-foreground text-sm gap-2">
+            <RefreshCw className="h-4 w-4 animate-spin" /> Loading products…
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-xs uppercase tracking-widest text-muted-foreground w-14">Image</TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-muted-foreground">Name</TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-muted-foreground">Category</TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-muted-foreground">Price</TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-muted-foreground">Voltage</TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-muted-foreground">CCA</TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-muted-foreground w-28">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((p) => (
+                <TableRow key={p.id} className="border-border hover:bg-muted/20" data-testid={`row-product-${p.id}`}>
+                  <TableCell>
+                    <div className="h-10 w-10 bg-muted border border-border flex items-center justify-center">
+                      <img src={p.image} alt={p.name} className="h-8 w-8 object-contain" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-semibold">{p.name}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{p.category}</TableCell>
+                  <TableCell className="font-bold text-primary">${p.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{p.voltage}V</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{p.cca ? `${p.cca} A` : "—"}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 rounded-none hover:bg-muted"
+                        onClick={() => openEdit(p)}
+                        data-testid={`button-edit-${p.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 rounded-none hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => setDeleteTarget(p)}
+                        data-testid={`button-delete-${p.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+
+      <ProductFormSheet
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        product={editing}
+      />
+
+      <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
+        <DialogContent className="dark bg-background border-border rounded-none sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-black uppercase tracking-tight">Delete Product?</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              This will permanently remove <span className="font-semibold text-foreground">{deleteTarget?.name}</span> from the storefront. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              className="rounded-none uppercase"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="rounded-none uppercase"
+              onClick={confirmDelete}
+              disabled={deleting}
+              data-testid="button-confirm-delete"
+            >
+              {deleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting…</> : "Delete Product"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 function PinGate({ onUnlock }: { onUnlock: () => void }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
@@ -393,7 +547,7 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
   );
 }
 
-type Tab = "orders" | "inventory";
+type Tab = "orders" | "inventory" | "products";
 
 export default function AdminPage() {
   const [unlocked, setUnlocked] = useState(
@@ -470,7 +624,7 @@ export default function AdminPage() {
         </div>
 
         <div className="flex gap-1 border-b border-border">
-          {(["orders", "inventory"] as Tab[]).map((tab) => (
+          {(["orders", "inventory", "products"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -490,9 +644,13 @@ export default function AdminPage() {
                     </span>
                   )}
                 </span>
-              ) : (
+              ) : tab === "inventory" ? (
                 <span className="flex items-center gap-2">
                   <Package className="h-4 w-4" /> Inventory
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <PlusCircle className="h-4 w-4" /> Products
                 </span>
               )}
             </button>
@@ -590,6 +748,8 @@ export default function AdminPage() {
         )}
 
         {activeTab === "inventory" && <InventoryTab />}
+
+        {activeTab === "products" && <ProductsTab />}
       </div>
     </div>
   );

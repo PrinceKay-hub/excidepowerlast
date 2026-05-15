@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { products } from "@/data/products";
+import { useProducts } from "@/context/ProductsContext";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function Shop() {
+  const { products } = useProducts();
   const [searchParams] = useState(() => new URLSearchParams(window.location.search));
   const initialCategory = searchParams.get("category") || "All";
   

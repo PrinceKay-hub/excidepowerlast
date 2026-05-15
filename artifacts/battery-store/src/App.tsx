@@ -10,6 +10,7 @@ import Finder from "@/pages/finder";
 import Admin from "@/pages/admin";
 import { CartProvider } from "@/context/CartContext";
 import { InventoryProvider } from "@/context/InventoryContext";
+import { ProductsProvider } from "@/context/ProductsContext";
 import Navbar from "@/components/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 
@@ -49,12 +50,14 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
-          <InventoryProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <Shell />
-            </WouterRouter>
-            <Toaster />
-          </InventoryProvider>
+          <ProductsProvider>
+            <InventoryProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Shell />
+              </WouterRouter>
+              <Toaster />
+            </InventoryProvider>
+          </ProductsProvider>
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>

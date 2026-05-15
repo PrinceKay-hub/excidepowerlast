@@ -1,7 +1,7 @@
 import { useParams, Link } from "wouter";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { products } from "@/data/products";
+import { useProducts } from "@/context/ProductsContext";
 import { useCart } from "@/context/CartContext";
 import { useInventory } from "@/context/InventoryContext";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import {
 
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
+  const { products } = useProducts();
   const { dispatch } = useCart();
   const { getStatus } = useInventory();
   const [qty, setQty] = useState(1);

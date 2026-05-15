@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { products, Product } from "@/data/products";
+import { Product } from "@/data/products";
+import { useProducts } from "@/context/ProductsContext";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Zap, ShieldCheck, CheckCircle2, RotateCcw, ShoppingCart } from "lucide-react";
@@ -93,7 +94,7 @@ const STEPS = [
   },
 ];
 
-function matchProducts(answers: Answers): Product[] {
+function matchProducts(answers: Answers, products: Product[]): Product[] {
   let filtered = [...products];
 
   if (answers.vehicleType) {
@@ -223,6 +224,7 @@ function ResultCard({ product }: { product: Product }) {
 }
 
 export default function FinderPage() {
+  const { products } = useProducts();
   const [step, setStep] = useState<Step>(1);
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Answers>({ vehicleType: "", usage: "", budget: "" });
@@ -259,8 +261,8 @@ export default function FinderPage() {
     setDone(false);
   }
 
-  const results = done ? matchProducts(answers) : [];
-  const isBudgetRelaxed = done && matchProducts(answers).length === 0;
+  const results = done ? matchProducts(answers, products) : [];
+  const isBudgetRelaxed = done && matchProducts(answers, products).length === 0;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col">
