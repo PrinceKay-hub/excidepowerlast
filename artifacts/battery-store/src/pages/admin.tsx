@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { subscribeToOrders, updateOrderStatus, Order, OrderStatus } from "@/lib/orders";
 import { subscribeToInventory, setStockStatus, StockStatus } from "@/lib/inventory";
 import { subscribeToProducts, deleteProduct, Product } from "@/lib/products-db";
+import { useProducts } from "@/context/ProductsContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -230,6 +231,7 @@ function OrderRow({
 }
 
 function InventoryTab() {
+  const { products } = useProducts();
   const [inventory, setInventory] = useState<Record<string, StockStatus>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
 
