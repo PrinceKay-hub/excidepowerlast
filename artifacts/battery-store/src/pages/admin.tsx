@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { subscribeToOrders, updateOrderStatus, Order, OrderStatus } from "@/lib/orders";
 import { subscribeToInventory, setStockStatus, StockStatus } from "@/lib/inventory";
 import { subscribeToProducts, deleteProduct, Product } from "@/lib/products-db";
@@ -48,8 +50,6 @@ import {
   Trash2,
   Loader2,
 } from "lucide-react";
-
-const ADMIN_PIN = "voltedge2024";
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
   pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
@@ -486,17 +486,31 @@ function ProductsTab() {
   );
 }
 
-function PinGate({ onUnlock }: { onUnlock: () => void }) {
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState(false);
+function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (pin === ADMIN_PIN) {
-      onUnlock();
-    } else {
-      setError(true);
-      setPin("");
+    setError("");
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? "";
+      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
+        setError("Incorrect email or password.");
+      } else if (code === "auth/too-many-requests") {
+        setError("Too many attempts. Try again later.");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Email/password sign-in is not enabled in Firebase Console.");
+      } else {
+        setError("Sign-in failed. Check your credentials and try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -507,42 +521,47 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
           <Lock className="h-8 w-8" />
         </div>
         <div className="text-center">
-          <h1 className="text-2xl font-bold uppercase tracking-tight">Admin Access</h1>
+          <h1 className="text-2xl font-bold uppercase tracking-tight">Admin Sign In</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Enter the admin PIN to continue
+            Sign in with your admin account to continue
           </p>
         </div>
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
           <Input
-            type="password"
-            placeholder="Enter PIN"
-            value={pin}
-            onChange={(e) => {
-              setPin(e.target.value);
-              setError(false);
-            }}
+            type="email"
+            placeholder="Admin email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
             autoFocus
-            className="rounded-none text-center text-lg tracking-widest"
-            data-testid="input-admin-pin"
+            required
+            className="rounded-none"
+            data-testid="input-admin-email"
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); setError(""); }}
+            required
+            className="rounded-none"
+            data-testid="input-admin-password"
           />
           {error && (
-            <p
-              className="text-destructive text-sm text-center"
-              data-testid="text-pin-error"
-            >
-              Incorrect PIN. Try again.
+            <p className="text-destructive text-sm text-center" data-testid="text-login-error">
+              {error}
             </p>
           )}
           <Button
             type="submit"
             className="w-full uppercase font-bold rounded-none"
-            data-testid="button-admin-unlock"
+            disabled={loading}
+            data-testid="button-admin-signin"
           >
-            Unlock Dashboard
+            {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in…</> : "Sign In"}
           </Button>
         </form>
-        <p className="text-xs text-muted-foreground text-center">
-          Hint: voltedge2024
+        <p className="text-xs text-muted-foreground text-center leading-relaxed">
+          Set up your admin account in Firebase Console → Authentication → Users
         </p>
       </div>
     </div>
@@ -552,9 +571,8 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
 type Tab = "orders" | "inventory" | "products";
 
 export default function AdminPage() {
-  const [unlocked, setUnlocked] = useState(
-    () => sessionStorage.getItem("admin_unlocked") === "1"
-  );
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("orders");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -563,19 +581,22 @@ export default function AdminPage() {
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   useEffect(() => {
-    if (!unlocked) return;
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setAuthLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
     const unsub = subscribeToOrders((data) => {
       setOrders(data);
       setLoading(false);
       setLastRefresh(new Date());
     });
     return unsub;
-  }, [unlocked]);
-
-  function handleUnlock() {
-    sessionStorage.setItem("admin_unlocked", "1");
-    setUnlocked(true);
-  }
+  }, [user]);
 
   const handleStatusChange = useCallback(
     async (id: string, status: OrderStatus) => {
@@ -584,7 +605,15 @@ export default function AdminPage() {
     []
   );
 
-  if (!unlocked) return <PinGate onUnlock={handleUnlock} />;
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center dark">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) return <LoginForm />;
 
   const filtered = orders.filter((o) => {
     const matchesFilter = filter === "all" || o.status === filter;
@@ -609,9 +638,23 @@ export default function AdminPage() {
           </span>
           <span className="text-muted-foreground text-sm">/ Admin</span>
         </div>
-        <div className="flex items-center gap-3 text-muted-foreground text-xs">
-          <RefreshCw className="h-3 w-3" />
-          Live — updated {lastRefresh.toLocaleTimeString()}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs">
+            <RefreshCw className="h-3 w-3" />
+            Live — updated {lastRefresh.toLocaleTimeString()}
+          </div>
+          <div className="flex items-center gap-2 border-l border-border pl-4">
+            <span className="text-xs text-muted-foreground hidden sm:block truncate max-w-[160px]">{user.email}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-none uppercase text-xs font-bold h-8 px-3 border-border"
+              onClick={() => signOut(auth)}
+              data-testid="button-sign-out"
+            >
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
 
