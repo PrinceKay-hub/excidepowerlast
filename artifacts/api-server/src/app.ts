@@ -1,11 +1,10 @@
 import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
-import * as pinoHttpNamespace from 'pino-http';
+import { pinoHttp } from 'pino-http';
 import router from './routes';
 import { logger } from './lib/logger';
 
 const app: Express = express();
-const pinoHttp = pinoHttpNamespace.default; 
 
 app.use(
   pinoHttp({
