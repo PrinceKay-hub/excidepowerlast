@@ -96,9 +96,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("voltedge_cart", JSON.stringify(state.items));
   }, [state.items]);
 
-  const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = state.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const subtotal = state.items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum: number, item: CartItem) => sum + item.product.price * item.quantity,
     0
   );
 
