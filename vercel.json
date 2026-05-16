@@ -1,5 +1,26 @@
 {
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm run build",
-  "outputDirectory": "artifacts/api-server/dist"
+  "version": 2,
+  "builds": [
+    {
+      "src": "artifacts/battery-store/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/public"
+      }
+    },
+    {
+      "src": "artifacts/api-server/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/artifacts/api-server/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/artifacts/battery-store/dist/public/$1"
+    }
+  ]
 }
