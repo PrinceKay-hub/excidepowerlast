@@ -10,17 +10,18 @@ globalThis.require = createRequire(import.meta.url);
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 
 async function buildAll() {
-  const distDir = path.resolve(artifactDir, "dist");
-  await rm(distDir, { recursive: true, force: true });
+  const artifactDir = path.dirname(fileURLToPath(import.meta.url)); // = artifacts/api-server
+  const outFile = path.join(artifactDir, "server.js");
+
+  // Remove old server.js
+  await rm(outFile, { force: true });
 
   await esbuild({
-    entryPoints: {
-      server: path.resolve(artifactDir, "src/index.ts")   // output: dist/server.js
-    },
-    platform: "node",
+    entryPoints: [path.resolve(artifactDir, "src/index.ts")],   // array, not object
     bundle: true,
+    platform: "node",
     format: "esm",
-    outdir: distDir,
+    outfile: outFile, 
     outExtension: { ".js": ".js" },   // output .js (Vercel expects .js)
     logLevel: "info",
     external: [
