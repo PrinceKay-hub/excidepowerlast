@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "dist/server.js": {
-      "runtime": "nodejs22.x"
-    }
-  },
   "routes": [
     { "src": "/(.*)", "dest": "dist/server.js" }
   ]
