@@ -10,7 +10,7 @@ import {
   Timestamp,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "./firebase";
+import { db, isFirebaseConfigured } from "./firebase";
 import { CartItem } from "@/context/CartContext";
 
 export interface OrderData {
@@ -47,6 +47,10 @@ export async function placeOrder(
   items: CartItem[],
   subtotal: number
 ): Promise<string> {
+  if (!isFirebaseConfigured) {
+    console.warn("Firebase not configured — order not saved.");
+    return "demo-order-" + Date.now();
+  }
   const docRef = await addDoc(collection(db, "orders"), {
     ...orderData,
     items: items.map((item) => ({
@@ -65,12 +69,17 @@ export async function placeOrder(
 }
 
 export async function fetchOrders(): Promise<Order[]> {
+  if (!isFirebaseConfigured) return [];
   const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
 }
 
 export function subscribeToOrders(callback: (orders: Order[]) => void) {
+  if (!isFirebaseConfigured) {
+    callback([]);
+    return () => {};
+  }
   const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
   return onSnapshot(q, (snapshot) => {
     const orders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
@@ -79,5 +88,6 @@ export function subscribeToOrders(callback: (orders: Order[]) => void) {
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
+  if (!isFirebaseConfigured) return;
   await updateDoc(doc(db, "orders", orderId), { status });
 }

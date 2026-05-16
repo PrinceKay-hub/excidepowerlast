@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { subscribeToOrders, updateOrderStatus, Order, OrderStatus } from "@/lib/orders";
 import { subscribeToInventory, setStockStatus, StockStatus } from "@/lib/inventory";
 import { subscribeToProducts, deleteProduct, Product } from "@/lib/products-db";
@@ -581,6 +581,10 @@ export default function AdminPage() {
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   useEffect(() => {
+    if (!isFirebaseConfigured) {
+      setAuthLoading(false);
+      return;
+    }
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthLoading(false);
@@ -609,6 +613,35 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isFirebaseConfigured) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="border border-border bg-card p-10 w-full max-w-md flex flex-col items-center gap-6 text-center">
+          <div className="p-4 bg-yellow-500/10 text-yellow-500">
+            <AlertTriangle className="h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold uppercase tracking-tight">Firebase Not Configured</h1>
+            <p className="text-muted-foreground text-sm mt-2 leading-relaxed">
+              The admin panel requires a Firebase project. Add these environment variables in your Replit Secrets to enable full functionality:
+            </p>
+          </div>
+          <ul className="text-left w-full text-xs font-mono text-muted-foreground space-y-1 bg-muted/40 border border-border p-4">
+            <li>VITE_FIREBASE_API_KEY</li>
+            <li>VITE_FIREBASE_AUTH_DOMAIN</li>
+            <li>VITE_FIREBASE_PROJECT_ID</li>
+            <li>VITE_FIREBASE_STORAGE_BUCKET</li>
+            <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
+            <li>VITE_FIREBASE_APP_ID</li>
+          </ul>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Create a free Firebase project at <span className="text-primary">console.firebase.google.com</span>, then add the credentials above.
+          </p>
+        </div>
       </div>
     );
   }
