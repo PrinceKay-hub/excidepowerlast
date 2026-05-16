@@ -16,11 +16,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/artifacts/api-server/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/artifacts/battery-store/dist/public/$1"
+      "dest": "artifacts/api-server/server.js"
     }
   ]
 }
