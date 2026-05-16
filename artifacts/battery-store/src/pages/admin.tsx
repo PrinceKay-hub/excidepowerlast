@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { auth, isFirebaseConfigured } from "@/lib/firebase";
+import { auth, isFirebaseConfigured, missingEnvVars } from "@/lib/firebase";
 import { subscribeToOrders, updateOrderStatus, Order, OrderStatus } from "@/lib/orders";
 import { subscribeToInventory, setStockStatus, StockStatus } from "@/lib/inventory";
 import { subscribeToProducts, deleteProduct, Product } from "@/lib/products-db";
@@ -627,19 +627,28 @@ export default function AdminPage() {
           <div>
             <h1 className="text-xl font-bold uppercase tracking-tight">Firebase Not Configured</h1>
             <p className="text-muted-foreground text-sm mt-2 leading-relaxed">
-              The admin panel requires a Firebase project. Add these environment variables in your Replit Secrets to enable full functionality:
+              The admin panel requires Firebase credentials. Add the following secrets in Replit Secrets, then restart the app:
             </p>
           </div>
-          <ul className="text-left w-full text-xs font-mono text-muted-foreground space-y-1 bg-muted/40 border border-border p-4">
-            <li>VITE_FIREBASE_API_KEY</li>
-            <li>VITE_FIREBASE_AUTH_DOMAIN</li>
-            <li>VITE_FIREBASE_PROJECT_ID</li>
-            <li>VITE_FIREBASE_STORAGE_BUCKET</li>
-            <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
-            <li>VITE_FIREBASE_APP_ID</li>
+          <ul className="text-left w-full text-xs font-mono space-y-1.5 bg-muted/40 border border-border p-4">
+            {missingEnvVars.map((key) => (
+              <li key={key} className="flex items-center gap-2 text-yellow-500">
+                <AlertTriangle className="h-3 w-3 shrink-0" />
+                {key}
+              </li>
+            ))}
           </ul>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Create a free Firebase project at <span className="text-primary">console.firebase.google.com</span>, then add the credentials above.
+            Create a free project at{" "}
+            <a
+              href="https://console.firebase.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline underline-offset-2"
+            >
+              console.firebase.google.com
+            </a>
+            , copy the SDK config values, and paste them into Replit Secrets.
           </p>
         </div>
       </div>

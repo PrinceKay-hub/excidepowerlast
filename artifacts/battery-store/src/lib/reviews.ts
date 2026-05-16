@@ -8,7 +8,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
-import { db } from "./firebase";
+import { db, isFirebaseConfigured } from "./firebase";
 
 export interface Review {
   id: string;
@@ -27,6 +27,10 @@ export interface NewReview {
 }
 
 export async function submitReview(review: NewReview): Promise<string> {
+  if (!isFirebaseConfigured) {
+    console.warn("[Reviews] Firebase not configured — review not saved.");
+    return "demo-review-" + Date.now();
+  }
   const docRef = await addDoc(collection(db, "reviews"), {
     ...review,
     createdAt: serverTimestamp(),
@@ -36,17 +40,29 @@ export async function submitReview(review: NewReview): Promise<string> {
 
 export function subscribeToReviews(
   productId: string,
-  callback: (reviews: Review[]) => void
+  callback: (reviews: Review[]) => void,
+  onError?: () => void
 ) {
+  if (!isFirebaseConfigured) {
+    callback([]);
+    return () => {};
+  }
   const q = query(
     collection(db, "reviews"),
     where("productId", "==", productId),
     orderBy("createdAt", "desc")
   );
-  return onSnapshot(q, (snapshot) => {
-    const reviews = snapshot.docs.map(
-      (d) => ({ id: d.id, ...d.data() } as Review)
-    );
-    callback(reviews);
-  });
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const reviews = snapshot.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as Review)
+      );
+      callback(reviews);
+    },
+    (err) => {
+      console.error("[Reviews] Firestore subscription error:", err.code, err.message);
+      onError?.();
+    }
+  );
 }

@@ -8,6 +8,7 @@ import {
   onSnapshot,
   getDocs,
   writeBatch,
+  FirestoreError,
 } from "firebase/firestore";
 import { db, isFirebaseConfigured } from "./firebase";
 import { products as seedData, Product } from "@/data/products";
@@ -28,16 +29,17 @@ export async function seedIfEmpty(): Promise<void> {
         batch.set(ref, p);
       });
       await batch.commit();
+      console.info(`[Products] Seeded ${seedData.length} products to Firestore.`);
     }
     seeded = true;
-  } catch {
-    // Firestore not yet configured — ignore, fall back to hardcoded data
+  } catch (err) {
+    console.warn("[Products] Could not seed Firestore — falling back to local data.", err);
   }
 }
 
 export function subscribeToProducts(
   callback: (products: Product[]) => void,
-  onError?: () => void
+  onError?: (err?: FirestoreError) => void
 ) {
   if (!isFirebaseConfigured) {
     callback(seedData);
@@ -57,13 +59,15 @@ export function subscribeToProducts(
       });
       callback(list);
     },
-    () => {
-      onError?.();
+    (err) => {
+      console.error("[Products] Firestore subscription error:", err.code, err.message);
+      onError?.(err);
     }
   );
 }
 
 export async function addProduct(product: NewProduct): Promise<string> {
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured.");
   const ref = await addDoc(collection(db, "products"), product);
   return ref.id;
 }
@@ -72,13 +76,16 @@ export async function updateProduct(
   id: string,
   product: Partial<NewProduct>
 ): Promise<void> {
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured.");
   await updateDoc(doc(db, "products", id), product as Record<string, unknown>);
 }
 
 export async function deleteProduct(id: string): Promise<void> {
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured.");
   await deleteDoc(doc(db, "products", id));
 }
 
 export async function setProductDoc(id: string, product: Product): Promise<void> {
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured.");
   await setDoc(doc(db, "products", id), product);
 }

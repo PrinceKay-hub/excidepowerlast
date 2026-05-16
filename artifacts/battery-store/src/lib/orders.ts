@@ -9,6 +9,7 @@ import {
   orderBy,
   Timestamp,
   onSnapshot,
+  FirestoreError,
 } from "firebase/firestore";
 import { db, isFirebaseConfigured } from "./firebase";
 import { CartItem } from "@/context/CartContext";
@@ -48,9 +49,10 @@ export async function placeOrder(
   subtotal: number
 ): Promise<string> {
   if (!isFirebaseConfigured) {
-    console.warn("Firebase not configured — order not saved.");
+    console.warn("[Orders] Firebase not configured — order not saved to Firestore.");
     return "demo-order-" + Date.now();
   }
+  if (items.length === 0) throw new Error("Cannot place an order with no items.");
   const docRef = await addDoc(collection(db, "orders"), {
     ...orderData,
     items: items.map((item) => ({
@@ -75,16 +77,26 @@ export async function fetchOrders(): Promise<Order[]> {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
 }
 
-export function subscribeToOrders(callback: (orders: Order[]) => void) {
+export function subscribeToOrders(
+  callback: (orders: Order[]) => void,
+  onError?: (err: FirestoreError) => void
+) {
   if (!isFirebaseConfigured) {
     callback([]);
     return () => {};
   }
   const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-  return onSnapshot(q, (snapshot) => {
-    const orders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
-    callback(orders);
-  });
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const orders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
+      callback(orders);
+    },
+    (err) => {
+      console.error("[Orders] Firestore subscription error:", err.code, err.message);
+      onError?.(err);
+    }
+  );
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
