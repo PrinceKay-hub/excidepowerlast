@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development pnpm run build && pnpm run start",
+    "dev": "node src/server.ts",
     "build": "pnpm run --filter @workspace/api-zod build && node ./build.mjs",
-    "start": "node --enable-source-maps ./dist/index.mjs",
+    "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

@@ -15,13 +15,13 @@ async function buildAll() {
 
   await esbuild({
     entryPoints: {
-      server: path.resolve(artifactDir, "src/index.ts")   // ← main output: server.js
+      server: path.resolve(artifactDir, "src/index.ts")   // output: dist/server.js
     },
     platform: "node",
     bundle: true,
     format: "esm",
     outdir: distDir,
-    outExtension: { ".js": ".js" },   // ← force .js extension (optional, but good for Vercel)
+    outExtension: { ".js": ".js" },   // output .js (Vercel expects .js)
     logLevel: "info",
     external: [
       "*.node",
