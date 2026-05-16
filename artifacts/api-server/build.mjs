@@ -5,7 +5,6 @@ import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
 import { rm } from "node:fs/promises";
 
-// Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
@@ -15,11 +14,14 @@ async function buildAll() {
   await rm(distDir, { recursive: true, force: true });
 
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+    entryPoints: {
+      server: path.resolve(artifactDir, "src/index.ts")   // ← main output: server.js
+    },
     platform: "node",
     bundle: true,
     format: "esm",
-    outfile: path.join(distDir, "server.js"),   // ← single file, named server.js
+    outdir: distDir,
+    outExtension: { ".js": ".js" },   // ← force .js extension (optional, but good for Vercel)
     logLevel: "info",
     external: [
       "*.node",
@@ -96,9 +98,7 @@ async function buildAll() {
       "electron",
     ],
     sourcemap: "linked",
-    plugins: [
-      esbuildPluginPino({ transports: ["pino-pretty"] })
-    ],
+    plugins: [esbuildPluginPino({ transports: ["pino-pretty"] })],
     banner: {
       js: `import { createRequire as __bannerCrReq } from 'node:module';
 import __bannerPath from 'node:path';
