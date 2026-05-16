@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "dist/index.mjs": {
+      "runtime": "nodejs24.x"
+    }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "dist/index.mjs" }
+  ]
+}
