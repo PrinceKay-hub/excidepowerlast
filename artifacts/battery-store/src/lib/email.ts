@@ -6,15 +6,17 @@ const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const ADMIN_TEMPLATE = import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE_ID;
 const CUSTOMER_TEMPLATE = import.meta.env.VITE_EMAILJS_CUSTOMER_TEMPLATE_ID;
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 function isConfigured(): boolean {
-  const ok = !!(PUBLIC_KEY && SERVICE_ID && ADMIN_TEMPLATE && CUSTOMER_TEMPLATE);
+  const ok = !!(PUBLIC_KEY && SERVICE_ID && ADMIN_TEMPLATE && CUSTOMER_TEMPLATE && ADMIN_EMAIL);
   if (!ok) {
     console.warn("[EmailJS] Missing env vars:", {
       VITE_EMAILJS_PUBLIC_KEY: !!PUBLIC_KEY,
       VITE_EMAILJS_SERVICE_ID: !!SERVICE_ID,
       VITE_EMAILJS_ADMIN_TEMPLATE_ID: !!ADMIN_TEMPLATE,
       VITE_EMAILJS_CUSTOMER_TEMPLATE_ID: !!CUSTOMER_TEMPLATE,
+      VITE_ADMIN_EMAIL: !!ADMIN_EMAIL,
     });
   }
   return ok;
@@ -41,6 +43,7 @@ export async function sendOrderEmails(
   const shippingAddress = `${order.address}, ${order.city}, ${order.state} ${order.zip}`;
 
   const adminParams = {
+    to_email: ADMIN_EMAIL,
     order_id: orderId,
     customer_name: order.customerName,
     customer_email: order.email,
@@ -51,9 +54,9 @@ export async function sendOrderEmails(
   };
 
   const customerParams = {
+    to_email: order.email,
     order_id: orderId,
     customer_name: order.customerName,
-    to_email: order.email,
     shipping_address: shippingAddress,
     items_list: itemsList,
     total: `GHS ${subtotal.toFixed(2)}`,
