@@ -8,12 +8,21 @@ const ADMIN_TEMPLATE = import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE_ID;
 const CUSTOMER_TEMPLATE = import.meta.env.VITE_EMAILJS_CUSTOMER_TEMPLATE_ID;
 
 function isConfigured(): boolean {
-  return !!(PUBLIC_KEY && SERVICE_ID && ADMIN_TEMPLATE && CUSTOMER_TEMPLATE);
+  const ok = !!(PUBLIC_KEY && SERVICE_ID && ADMIN_TEMPLATE && CUSTOMER_TEMPLATE);
+  if (!ok) {
+    console.warn("[EmailJS] Missing env vars:", {
+      VITE_EMAILJS_PUBLIC_KEY: !!PUBLIC_KEY,
+      VITE_EMAILJS_SERVICE_ID: !!SERVICE_ID,
+      VITE_EMAILJS_ADMIN_TEMPLATE_ID: !!ADMIN_TEMPLATE,
+      VITE_EMAILJS_CUSTOMER_TEMPLATE_ID: !!CUSTOMER_TEMPLATE,
+    });
+  }
+  return ok;
 }
 
 function buildItemsList(items: CartItem[]): string {
   return items
-    .map((i) => `${i.product.name} × ${i.quantity} — $${(i.product.price * i.quantity).toFixed(2)}`)
+    .map((i) => `${i.product.name} x${i.quantity} — GHS ${(i.product.price * i.quantity).toFixed(2)}`)
     .join("\n");
 }
 
@@ -24,7 +33,7 @@ export async function sendOrderEmails(
   orderId: string
 ): Promise<void> {
   if (!isConfigured()) {
-    console.warn("EmailJS is not configured — skipping email notifications.");
+    console.warn("[EmailJS] Not configured — skipping email notifications.");
     return;
   }
 
@@ -38,7 +47,7 @@ export async function sendOrderEmails(
     customer_phone: order.phone,
     shipping_address: shippingAddress,
     items_list: itemsList,
-    total: `$${subtotal.toFixed(2)}`,
+    total: `GHS ${subtotal.toFixed(2)}`,
   };
 
   const customerParams = {
@@ -47,11 +56,25 @@ export async function sendOrderEmails(
     to_email: order.email,
     shipping_address: shippingAddress,
     items_list: itemsList,
-    total: `$${subtotal.toFixed(2)}`,
+    total: `GHS ${subtotal.toFixed(2)}`,
   };
 
-  await Promise.allSettled([
+  console.log("[EmailJS] Sending emails for order:", orderId);
+
+  const [adminResult, customerResult] = await Promise.allSettled([
     emailjs.send(SERVICE_ID, ADMIN_TEMPLATE, adminParams, { publicKey: PUBLIC_KEY }),
     emailjs.send(SERVICE_ID, CUSTOMER_TEMPLATE, customerParams, { publicKey: PUBLIC_KEY }),
   ]);
+
+  if (adminResult.status === "rejected") {
+    console.error("[EmailJS] Admin email FAILED:", adminResult.reason);
+  } else {
+    console.log("[EmailJS] Admin email sent. Status:", adminResult.value.status, adminResult.value.text);
+  }
+
+  if (customerResult.status === "rejected") {
+    console.error("[EmailJS] Customer email FAILED:", customerResult.reason);
+  } else {
+    console.log("[EmailJS] Customer email sent. Status:", customerResult.value.status, customerResult.value.text);
+  }
 }
