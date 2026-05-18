@@ -103,3 +103,24 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus): P
   if (!isFirebaseConfigured) return;
   await updateDoc(doc(db, "orders", orderId), { status });
 }
+
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  if (!isFirebaseConfigured) return null;
+  const { getDoc } = await import("firebase/firestore");
+  const ref = doc(db, "orders", orderId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() } as Order;
+}
+
+export async function getOrdersByEmail(email: string): Promise<Order[]> {
+  if (!isFirebaseConfigured) return [];
+  const { where } = await import("firebase/firestore");
+  const q = query(
+    collection(db, "orders"),
+    where("email", "==", email.toLowerCase().trim()),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
+}

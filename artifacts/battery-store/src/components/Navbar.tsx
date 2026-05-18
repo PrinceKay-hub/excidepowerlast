@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ShoppingCart, Menu, X, Zap, Search } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -23,6 +23,10 @@ export default function Navbar() {
           <Link href="/finder" className="transition-colors hover:text-primary flex items-center gap-1.5">
             <Search className="h-3.5 w-3.5" />
             Battery Finder
+          </Link>
+          <Link href="/track-order" className="transition-colors hover:text-primary flex items-center gap-1.5">
+            <Package className="h-3.5 w-3.5" />
+            Track Order
           </Link>
           <a href="#about" className="transition-colors hover:text-primary">About</a>
           <a href="#contact" className="transition-colors hover:text-primary">Contact</a>
@@ -54,6 +58,9 @@ export default function Navbar() {
           <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium hover:text-primary">Shop</Link>
           <Link href="/finder" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium hover:text-primary flex items-center gap-1.5">
             <Search className="h-3.5 w-3.5" /> Battery Finder
+          </Link>
+          <Link href="/track-order" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium hover:text-primary flex items-center gap-1.5">
+            <Package className="h-3.5 w-3.5" /> Track Order
           </Link>
           <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium hover:text-primary">About</a>
           <a href="#contact" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium hover:text-primary">Contact</a>

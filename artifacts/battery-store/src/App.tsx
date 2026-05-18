@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Shop from "@/pages/shop";
 import Product from "@/pages/product";
 import Finder from "@/pages/finder";
+import TrackOrder from "@/pages/track-order";
 import Admin from "@/pages/admin";
 import { CartProvider } from "@/context/CartContext";
 import { InventoryProvider } from "@/context/InventoryContext";
@@ -37,6 +38,7 @@ function Shell() {
           <Route path="/shop" component={Shop} />
           <Route path="/product/:id" component={Product} />
           <Route path="/finder" component={Finder} />
+          <Route path="/track-order" component={TrackOrder} />
           <Route component={NotFound} />
         </Switch>
       </main>
