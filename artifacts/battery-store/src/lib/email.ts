@@ -22,12 +22,6 @@ function isConfigured(): boolean {
   return ok;
 }
 
-function buildItemsList(items: CartItem[]): string {
-  return items
-    .map((i) => `${i.product.name} x${i.quantity} — GHS ${(i.product.price * i.quantity).toFixed(2)}`)
-    .join("\n");
-}
-
 export async function sendOrderEmails(
   order: OrderData,
   items: CartItem[],
@@ -39,27 +33,40 @@ export async function sendOrderEmails(
     return;
   }
 
-  const itemsList = buildItemsList(items);
   const shippingAddress = `${order.address}, ${order.city}, ${order.state} ${order.zip}`;
 
-  const adminParams = {
-    to_email: ADMIN_EMAIL,
+  // Build orders array for the {{#orders}}...{{/orders}} Mustache loop in the template
+  const orders = items.map((i) => ({
+    items_list: i.product.name,
+    units: i.quantity,
+    total: (i.product.price * i.quantity).toFixed(2),
+  }));
+
+  // Shared shape — matches both customer and admin templates
+  const baseParams = {
     order_id: orderId,
-    customer_name: order.customerName,
-    customer_email: order.email,
-    customer_phone: order.phone,
-    shipping_address: shippingAddress,
-    items_list: itemsList,
-    total: `GHS ${subtotal.toFixed(2)}`,
+    orders,
+    total: subtotal.toFixed(2),
+    cost: {
+      shipping: "0.00",
+      tax: "0.00",
+    },
   };
 
   const customerParams = {
+    ...baseParams,
     to_email: order.email,
-    order_id: orderId,
+    email: order.email,         // used in footer: "This email was sent to {{email}}"
     customer_name: order.customerName,
+  };
+
+  const adminParams = {
+    ...baseParams,
+    to_email: ADMIN_EMAIL,
+    email: order.email,         // customer email shown in admin notification footer
+    customer_name: order.customerName,
+    customer_phone: order.phone,
     shipping_address: shippingAddress,
-    items_list: itemsList,
-    total: `GHS ${subtotal.toFixed(2)}`,
   };
 
   console.log("[EmailJS] Sending emails for order:", orderId);
